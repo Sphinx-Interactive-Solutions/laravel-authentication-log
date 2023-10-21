@@ -3,23 +3,18 @@
 namespace Rappasoft\LaravelAuthenticationLog\Listeners;
 
 use Illuminate\Auth\Events\Login;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Rappasoft\LaravelAuthenticationLog\Notifications\NewDevice;
 
-class LoginListener
+class LoginListener extends EventListener
 {
-    public Request $request;
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
     public function handle($event): void
     {
-        $listener = config('authentication-log.events.login', Login::class);
-        if (! $event instanceof $listener) {
+        if (! $this->isListenerForEvent($event, 'login', Login::class)) {
+            return;
+        }
+
+        if (! $this->isLoggable($event)) {
             return;
         }
 
