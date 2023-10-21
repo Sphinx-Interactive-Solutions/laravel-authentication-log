@@ -3,20 +3,19 @@
 namespace Rappasoft\LaravelAuthenticationLog\Listeners;
 
 use Illuminate\Auth\Events\OtherDeviceLogout;
-use Illuminate\Http\Request;
-use Rappasoft\LaravelAuthenticationLog\Models\AuthenticationLog;
 
-class OtherDeviceLogoutListener
+class OtherDeviceLogoutListener extends EventListener
 {
-    public Request $request;
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
     public function handle($event): void
     {
+        if (! $this->isListenerForEvent($event, 'other-device-logout', OtherDeviceLogout::class)) {
+            return;
+        }
+
+        if (! $this->isLoggable($event)) {
+            return;
+        }
+        
         $listener = config('authentication-log.events.other-device-logout', OtherDeviceLogout::class);
         if (! $event instanceof $listener) {
             return;
