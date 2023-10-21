@@ -14,6 +14,8 @@ class AuthenticationLog extends Model
     protected $fillable = [
         'ip_address',
         'user_agent',
+        'browser',
+        'browser_os',
         'login_at',
         'login_successful',
         'logout_at',
@@ -36,6 +38,16 @@ class AuthenticationLog extends Model
         }
 
         parent::__construct($attributes);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(static function ($model) {
+            $parser = new Parser($model->user_agent);
+
+            $model->browser = $parser->browser->name;
+            $model->browser_os = $parser->os->name;
+        });
     }
 
     public function getTable()
