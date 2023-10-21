@@ -3,22 +3,16 @@
 namespace Rappasoft\LaravelAuthenticationLog\Listeners;
 
 use Illuminate\Auth\Events\Logout;
-use Illuminate\Http\Request;
-use Rappasoft\LaravelAuthenticationLog\Models\AuthenticationLog;
 
-class LogoutListener
+class LogoutListener extends EventListener
 {
-    public Request $request;
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
     public function handle($event): void
     {
-        $listener = config('authentication-log.events.logout', Logout::class);
-        if (! $event instanceof $listener) {
+        if (! $this->isListenerForEvent($event, 'logout', Logout::class)) {
+            return;
+        }
+
+        if (! $this->isLoggable($event)) {
             return;
         }
 
